@@ -37,5 +37,13 @@ $("loginBtn").onclick=async()=>{ $("loginError").textContent="Signing in...";con
 $("createBtn").onclick=async()=>{const username=$("newUsername").value.trim(),password=$("newPassword").value,expiry=$("expiry").value;if(username.length<3||password.length<10){$("createMsg").textContent="Username must be 3+ chars and password 10+ chars.";return;}try{$("createMsg").textContent="Creating...";await callAdmin({action:"create",username,password,expires_at:expiry?new Date(expiry).toISOString():null});$("createMsg").textContent="Account created successfully."; $("newUsername").value="";$("newPassword").value="";$("expiry").value="";await loadUsers();}catch(e){$("createMsg").textContent=e.message;}};
 $("refresh").onclick=loadUsers;$("logout").onclick=async()=>{await sb.auth.signOut();showLogin();};
 sb.auth.onAuthStateChange(async(_event,session)=>{if(session){if(session.user.app_metadata?.role==="admin"){showApp(session.user);loadUsers();}else{await sb.auth.signOut();showLogin();}}else showLogin();});
-if(SUPABASE_URL.startsWith("https://")&&SUPABASE_ANON_KEY!=="sb_publishable_SmQoUZGJBxW-8SfT9EoECA_s3SYHL8G"){const {data:{session}}=await sb.auth.getSession();if(session&&session.user.app_metadata?.role==="admin"){showApp(session.user);loadUsers();}}
+(async()=>{
+    if(SUPABASE_URL.startsWith("https://")){
+        const {data:{session}} = await sb.auth.getSession();
+        if(session && session.user.app_metadata?.role === "admin"){
+            showApp(session.user);
+            loadUsers();
+        }
+    }
+})();
 </script></body></html>
